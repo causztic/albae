@@ -49,28 +49,31 @@ def setWaterPumpAndFan():
 
 class TemperatureSM(sm.SM):
 
-    startState = "nice"
+    startState = "cold"
 
     def __init__(self):
         self.state = self.startState
 
     def getNextValues(self, state, inp):
-        temperature = read_temp()
         power = 1.0
-
-        nextState = "nice"
-        if temperature > optimal:
+        if inp > optimal:
             nextState = "hot"
-        elif temperature < optimal:
+        else:
             nextState = "cold"
+
+        if state == "hot":
+            power = 1.0
+        elif state == "cold":
             power = 0
+
         print temperature, nextState
         return nextState, (power, power)
 
 tsm = TemperatureSM()
 f = setWaterPumpAndFan()
 while (True):
-    f_power, wp_power = tsm.step("")
+    temperature = read_temp()
+    f_power, wp_power = tsm.step(temperature)
     #wp.ChangeDutyCycle(wp_power * 100)
     f.ChangeDutyCycle(f_power * 100.0)
     time.sleep(1)

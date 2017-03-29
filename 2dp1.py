@@ -40,9 +40,12 @@ def read_temp():
         return temp_c
 
 
-def setWaterPumpAndFan(powers):
-    return GPIO.PWM(WATER, powers[0]), GPIO.PWM(FAN, powers[1])
-
+def setWaterPumpAndFan():
+    wp = GPIO.PWM(WATER, 50)
+    f = GPIO.PWM(FAN, 50)
+    wp.start(0)
+    f.start(0)
+    return wp, f
 
 class TemperatureSM(sm.SM):
 
@@ -65,7 +68,9 @@ class TemperatureSM(sm.SM):
         return nextState, (power, power)
 
 tsm = TemperatureSM()
-
+wp, f = setWaterPumpAndFan()
 while (True):
-    setWaterPumpAndFan(tsm.step(""))
+    wp_power, f_power = tsm.step("")
+    wp.ChangeDutyCycle(wp_power * 100)
+    f.ChangeDutyCycle(f_power * 100)
     time.sleep(1)

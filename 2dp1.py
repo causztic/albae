@@ -43,7 +43,7 @@ def read_temp():
 
 def setWaterPumpAndFan():
     fan_cw = GPIO.PWM(FAN_0, 1000)
-    fan_cw.start(0)
+    fan_cw.start(50)
     return fan_cw
 
 

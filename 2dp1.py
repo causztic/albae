@@ -73,5 +73,5 @@ f = setWaterPumpAndFan()
 while (True):
     f_power, wp_power = tsm.step("")
     # wp.ChangeDutyCycle(wp_power * 100)
-    f.ChangeDutyCycle(f_power * 100.0)
+    # f.ChangeDutyCycle(f_power * 100.0)
     time.sleep(1)

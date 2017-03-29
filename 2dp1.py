@@ -34,7 +34,11 @@ def read_temp():
 
 
 class TemperatureSM(sm.SM):
+
     startState = "nice"
+
+    def __init__(self):
+        self.state = self.startState
 
     def getNextValues(self, state, inp):
         temperature = read_temp()

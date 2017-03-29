@@ -6,8 +6,8 @@ import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)
 
-FAN_0 = 20
-FAN_1 = 21
+FAN_0 = 23
+FAN_1 = 24
 GPIO.setup(FAN_0, GPIO.OUT)
 GPIO.setup(FAN_1, GPIO.OUT)
 

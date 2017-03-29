@@ -56,7 +56,7 @@ class TemperatureSM(sm.SM):
 
     def getNextValues(self, state, inp):
         temperature = read_temp()
-        power = 0.5
+        power = 1.0
 
         nextState = "nice"
         if temperature > optimal:

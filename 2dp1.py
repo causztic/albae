@@ -4,7 +4,7 @@ import time
 from libdw import sm
 import RPi.GPIO as GPIO
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
 FAN_0 = 20
 FAN_1 = 21

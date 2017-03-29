@@ -43,7 +43,7 @@ def read_temp():
 
 def setWaterPumpAndFan():
     fan_cw = GPIO.PWM(FAN_0, 1000)
-    fan_cw.start(100)
+    fan_cw.start(0)
     return fan_cw
 
 
@@ -71,6 +71,6 @@ tsm = TemperatureSM()
 f = setWaterPumpAndFan()
 while (True):
     f_power, wp_power = tsm.step("")
-    # wp.ChangeDutyCycle(wp_power * 100)
-    # f.ChangeDutyCycle(f_power * 100.0)
+    #wp.ChangeDutyCycle(wp_power * 100)
+    f.ChangeDutyCycle(f_power * 100.0)
     time.sleep(1)

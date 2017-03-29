@@ -3,12 +3,13 @@ import glob
 import time
 from libdw import sm
 import RPi.GPIO as GPIO
+
 GPIO.setmode(GPIO.BCM)
 
-WATER = 5
-FAN = 6
-GPIO.setup(WATER, GPIO.OUT)
-GPIO.setup(FAN, GPIO.OUT)
+FAN_1 = 20
+FAN_0 = 21
+GPIO.setup(FAN_0, GPIO.OUT)
+GPIO.setup(FAN_1, GPIO.OUT)
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -41,11 +42,10 @@ def read_temp():
 
 
 def setWaterPumpAndFan():
-    wp = GPIO.PWM(WATER, 50)
-    f = GPIO.PWM(FAN, 50)
-    wp.start(0)
-    f.start(0)
-    return wp, f
+    fan_cw = GPIO.PWM(FAN_0, 50)
+    fan_cw.start(0)
+    return fan_cw
+
 
 class TemperatureSM(sm.SM):
 
@@ -70,7 +70,7 @@ class TemperatureSM(sm.SM):
 tsm = TemperatureSM()
 wp, f = setWaterPumpAndFan()
 while (True):
-    wp_power, f_power = tsm.step("")
-    wp.ChangeDutyCycle(wp_power * 100)
+    f_power = tsm.step("")
+    # wp.ChangeDutyCycle(wp_power * 100)
     f.ChangeDutyCycle(f_power * 100)
     time.sleep(1)

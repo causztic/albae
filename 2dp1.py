@@ -40,8 +40,8 @@ def read_temp():
         return temp_c
 
 
-def setWaterPumpAndFan(wp_power, f_power):
-    return GPIO.PWM(WATER, wp_power), GPIO.PWM(FAN, f_power)
+def setWaterPumpAndFan(powers):
+    return GPIO.PWM(WATER, powers[0]), GPIO.PWM(FAN, powers[1])
 
 
 class TemperatureSM(sm.SM):

@@ -2,6 +2,7 @@ import os
 import glob
 import time
 from libdw import sm
+import RPi.GPIO as GPIO
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -55,10 +56,10 @@ class TemperatureSM(sm.SM):
             nextState = "cold"
             power = 0
         print temperature, nextState
-        return nextState, setWaterPumpAndFan(power, power)
+        return nextState, (power, power)
 
 tsm = TemperatureSM()
 
 while (True):
-    tsm.step("")
+    print tsm.step("")
     time.sleep(1)

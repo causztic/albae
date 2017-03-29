@@ -33,6 +33,10 @@ def read_temp():
         return temp_c
 
 
+def setWaterPumpAndFan(wp_power, f_power):
+    pass
+
+
 class TemperatureSM(sm.SM):
 
     startState = "nice"
@@ -51,7 +55,7 @@ class TemperatureSM(sm.SM):
             nextState = "cold"
             power = 0
         print temperature, nextState
-        return nextState, (power, power)
+        return nextState, setWaterPumpAndFan(power, power)
 
 tsm = TemperatureSM()
 

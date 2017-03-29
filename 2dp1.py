@@ -68,7 +68,7 @@ class TemperatureSM(sm.SM):
         return nextState, (power, power)
 
 tsm = TemperatureSM()
-wp, f = setWaterPumpAndFan()
+f = setWaterPumpAndFan()
 while (True):
     f_power = tsm.step("")
     # wp.ChangeDutyCycle(wp_power * 100)

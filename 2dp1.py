@@ -3,14 +3,14 @@ import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)
 
-tempswitch = "4"
+tempswitch = 4
 optimal = 30
 GPIO.setup(tempswitch, GPIO.OUT)
 
 
 class MySMClass(sm.SM):
     startState = "nice"
-    
+
     def getNextValues(self, state, inp):
         temperature = GPIO.input(tempswitch)
         print temperature

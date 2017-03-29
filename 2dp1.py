@@ -42,9 +42,8 @@ def read_temp():
 
 
 def setWaterPumpAndFan():
-    #fan_cw = GPIO.PWM(FAN_0, 1000)
-    #fan_cw.start(100)
-    fan_cw = GPIO.output(FAN_0, True)
+    fan_cw = GPIO.PWM(FAN_0, 1000)
+    fan_cw.start(100)
     return fan_cw
 
 

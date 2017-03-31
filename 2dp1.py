@@ -55,14 +55,14 @@ class TemperatureSM(sm.SM):
         self.state = self.startState
 
     def getNextValues(self, state, inp):
-        power = 1.0
+        power = 0.5
         if inp > optimal:
             nextState = "hot"
         else:
             nextState = "cold"
 
         if state == "hot":
-            power = 1.0
+            power = 0.5
         elif state == "cold":
             power = 0
 

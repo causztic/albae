@@ -6,8 +6,10 @@ from functools import partial
 from libdw import sm
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 from kivy.clock import Clock
 
 # import RPi.GPIO as GPIO
@@ -78,53 +80,91 @@ class TemperatureSM(sm.SM):
 
     startState = "cold"
     k = 1
-    optimal = 27.0
 
     def __init__(self):
         self.state = self.startState
+        self._optimal = 27.0
+
+    @property
+    def optimal(self):
+        return self._optimal
+
+    @optimal.setter
+    def set_optimal(self, value):
+        self._optimal = float(value)
+
 
     def getNextValues(self, state, inp):
         power = 1.0
         nextState = "cold"
-
         if float(inp) > self.optimal:
             nextState = "hot"
         elif float(inp) < self.optimal:
             nextState = "cold"
 
+        print nextState, self.optimal, inp
+
         if state == "hot":
             power = 1.0
         elif state == "cold":
             power = 0
+
         return nextState, (power, power)
 
 
 class AlbaeApp(App):
 
-    def system_temp_change(self, instance, value):
-        self.updateGUI(value)
+    def system_temp_change(self, instance, value): self.updateGUI(value)
+
+    def target_temp_change(self, instance, value): 
+        self.tsm.optimal = float(value)
+        self.updateGUI(self.system_temp.text)
+
+    def plus_system_temp(self, instance):          self.change_system_temp(self.system_temp, 0.1)
+    def minus_system_temp(self, instance):         self.change_system_temp(self.system_temp, -0.1)
+    def plus_t_temp(self, instance):               self.change_system_temp(self.target, 0.1)
+    def minus_t_temp(self, instance):              self.change_system_temp(self.target, -0.1)
+    def change_system_temp(self, instance, value): instance.text = str(float(instance.text) + value)
 
     def __init__(self, **kwargs):
         App.__init__(self, **kwargs)
         self.tsm = TemperatureSM()
+        self.fp = Label(text="0.0%")
+        self.wpp = Label(text="0.0%")
+
         self.target = TextInput(text=str(self.tsm.optimal))
+        self.target.bind(text=self.target_temp_change)
+        self.increment_t_temp_btn = Button(on_press=self.plus_t_temp, text="+")
+        self.decrement_t_temp_btn = Button(on_press=self.minus_t_temp, text="-")
+
         self.system_temp = TextInput(text=str(25.0))
         self.system_temp.bind(text=self.system_temp_change)
+        self.increment_sys_temp_btn = Button(on_press=self.plus_system_temp, text="+")
+        self.decrement_sys_temp_btn = Button(on_press=self.minus_system_temp, text="-")
 
         self.surr_temp = Label(
             text=read_temp() if use_thermometer else "Not detected")
-        self.fp = Label(text="0.0")
-        self.wpp = Label(text="0.0")
 
     def build(self):
 
         main = GridLayout(cols=2)
 
         main.add_widget(Label(text="Target Temperature in Celsius"))
-        main.add_widget(self.target)
 
-        main.add_widget(Label(text="Change the System Temperature"))
-        main.add_widget(self.system_temp)
+        tbox = BoxLayout(orientation="horizontal")
+        tbox.add_widget(self.target)
+        tbox.add_widget(self.increment_t_temp_btn)
+        tbox.add_widget(self.decrement_t_temp_btn)
+        main.add_widget(tbox)
+
+        if not use_thermometer:
+            main.add_widget(Label(text="Change the System Temperature"))
+
+            box = BoxLayout(orientation="horizontal")
+            box.add_widget(self.system_temp)
+            box.add_widget(self.increment_sys_temp_btn)
+            box.add_widget(self.decrement_sys_temp_btn)
+            main.add_widget(box)
 
         main.add_widget(
             Label(text="Algae Temperature \n (if thermometer is detected)", halign="center"))
@@ -143,8 +183,8 @@ class AlbaeApp(App):
         if not temp:
             temp = read_temp()
         fan_power, wp_power = self.tsm.step(temp)
-        self.fp.text = str(fan_power)
-        self.wpp.text = str(wp_power)
+        self.fp.text = str(fan_power*100) + "%"
+        self.wpp.text = str(wp_power*100) + "%"
 
         if use_thermometer:
             self.surr_temp = str(temp)

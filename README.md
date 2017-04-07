@@ -6,3 +6,8 @@
 - PWM to adjust water pump and fan power to maximize efficiency
 - Shine bright light on algae culture for a brighter future
 
+Chloe Liang 1002294
+Dion Teo 1002066
+Lim Yao Jie  1001997
+Shawn 1002273
+Wang Zhi 1002203

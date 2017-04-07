@@ -86,6 +86,7 @@ class TemperatureSM(sm.SM):
 
 tsm = TemperatureSM()
 f = setWaterPumpAndFan()
+
 while (True):
     temperature = read_temp() # read temperature from function
     wp_power, f_power = tsm.step(temperature) # step with temperature, get the power

@@ -18,14 +18,17 @@ for i in en.split():
 for i in vn.split():
     vnl.append(float(i))
 nl=[0,1,2,3,4,5,6,7,8,9]
-#Matrix A
+#Matrix A Q2
 def getMatrixA(p,order):
     matrixA=[]
     for col in range(order+1):
         row = []
         for m in range(p):
             if m>=col:#e does not exist
-                row.append(enl[m-col])
+                if isQ2:
+                    row.append(enl[m-col])
+                else:
+                    row.append(enl[m-col]+numda)
             else:
                 row.append(0)
         matrixA.append(row)
@@ -52,6 +55,16 @@ def trainModel(p,order):
     K = np.linalg.solve(a, b)
     #print K
     return K
+
+#find the loss of the model
+def getLoss(order):
+    #the whole dataset
+    MatrixA = getMatrixA(10,order)
+    V = getv(10)
+    #the training result
+    K=trainModel(p,order)
+    loss = np.linalg.norm(MatrixA.T*K-V)**2
+    return loss
     
 def testModel(p,order):
     if (p==n):
@@ -81,9 +94,12 @@ n=10
 #choose the first p point as training data
 p=8
 #choose the order
-order=7
-
+order=2
+#choose different model for Q2/Q3
+isQ2=True
+#set the effect of the coefficients
+numda=0/5
 #output the analytic results
 print trainModel(p,order)
 print testModel(p,order)
-
+print getLoss(order)

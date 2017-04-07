@@ -95,9 +95,10 @@ class TemperatureSM(sm.SM):
 
 
     def getNextValues(self, state, inp):
+        scaled = self.k * abs(self.optimal - float(inp))
         power = 1.0
         nextState = "cold"
-        if float(inp) > self.optimal:
+        if float(inp) >= self.optimal:
             nextState = "hot"
         elif float(inp) < self.optimal:
             nextState = "cold"
@@ -105,7 +106,10 @@ class TemperatureSM(sm.SM):
         print nextState, self.optimal, inp
 
         if state == "hot":
-            power = 1.0
+            if scaled >= 1.0:
+                power = 1.0
+            else:
+                power = scaled
         elif state == "cold":
             power = 0
 
@@ -116,7 +120,7 @@ class AlbaeApp(App):
 
     def system_temp_change(self, instance, value): self.updateGUI(value)
 
-    def target_temp_change(self, instance, value): 
+    def target_temp_change(self, instance, value):
         self.tsm.optimal = float(value)
         self.updateGUI(self.system_temp.text)
 

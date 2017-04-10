@@ -64,11 +64,14 @@ def setWaterPumpAndFan():
     GPIO.setup(FAN_1, GPIO.OUT)
     GPIO.setup(FAN_2, GPIO.OUT)
 
-    wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
-    GPIO.output(WATER_PUMP2, GPIO.LOW)
-
-    fan_cw = GPIO.PWM(FAN_1, 1000)
+    
     GPIO.output(FAN_2, GPIO.LOW)
+    GPIO.output(WATER_PUMP1, GPIO)
+    
+    wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
+    fan_cw = GPIO.PWM(FAN_1, 1000)
+    
+
 
     wp_cw.start(0)
     # wp_cw2.start(0)

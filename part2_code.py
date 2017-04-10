@@ -225,18 +225,14 @@ class AlbaeApp(App):
 
     def updateGUI(self, temp=None, *largs):
         self.tsm.optimal = float(self.target.text)
-        
-        if use_thermometer:
-            temp = read_temp()
-        else:
-            temp = float(temp.text)
+        temp = float(read_temp()) if use_thermometer else float(temp.text)
 
         fan_power, wp_power = self.tsm.step(temp)
         self.fp.text = str(fan_power * 100) + "%"
         self.wpp.text = str(wp_power * 100) + "%"
 
         if use_thermometer:
-            self.surr_temp = str(temp)
+            self.surr_temp.text = str(temp)
 
 
 if __name__ == '__main__':

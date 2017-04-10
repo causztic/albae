@@ -17,9 +17,10 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 
 # GPIOS
-PWM = 18
 WATER_PUMP1 = 23
+WATER_PUMP2 = 24
 FAN_1 = 17
+FAN_2 = 22
 
 use_thermometer = True
 
@@ -58,18 +59,20 @@ def read_temp():
 def setWaterPumpAndFan():
 
     GPIO.setup(WATER_PUMP1, GPIO.OUT)
-    GPIO.setup(FAN_1, GPIO.OUT)
+    GPIO.setup(WATER_PUMP2, GPIO.OUT)
 
-    GPIO.setup(PWM, GPIO.OUT)
-    GPIO.output(PWM, GPIO.HIGH)
+    GPIO.setup(FAN_1, GPIO.OUT)
+    GPIO.setup(FAN_2, GPIO.OUT)
 
     wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
-    # wp_cw2  = GPIO.PWN(WATER_PUMP2, 1000) unused
+    GPIO.output(WATER_PUMP2, GPIO.LOW)
+
     fan_cw = GPIO.PWM(FAN_1, 1000)
-    # fan_cw2 = GPIO.PWN(FAN_2, 1000) unused
-    wp_cw.start(100)
+    GPIO.output(FAN_2, GPIO.LOW)
+
+    wp_cw.start(0)
     # wp_cw2.start(0)
-    fan_cw.start(100)
+    fan_cw.start(0)
     # fan_cw2.start(0)
 
     return wp_cw, fan_cw

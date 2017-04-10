@@ -27,6 +27,9 @@ GPIO.setup(WATER_PUMP1, GPIO.OUT)
 GPIO.setup(PWM, GPIO.OUT)
 # GPIO.setup(WATER_PUMP2, GPIO.OUT)
 GPIO.setup(FAN_1, GPIO.OUT)
+
+GPIO.output(WATER_PUMP1, GPIO.HIGH)
+GPIO.output(PWM, GPIO.HIGH)
 # GPIO.setup(FAN_2, GPIO.OUT)
 
 use_thermometer = True
@@ -65,7 +68,6 @@ def read_temp():
 
 def setWaterPumpAndFan():
     wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
-    GPIO.output(PWM, GPIO.HIGH)
     # wp_cw2  = GPIO.PWN(WATER_PUMP2, 1000) unused
     fan_cw = GPIO.PWM(FAN_1, 1000)
     # fan_cw2 = GPIO.PWN(FAN_2, 1000) unused

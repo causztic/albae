@@ -43,7 +43,7 @@ from kivy.clock import Clock
 # GPIO.setup(WATER_PUMP1, GPIO.OUT)
 # GPIO.setup(WATER_PUMP2, GPIO.OUT)
 # GPIO.setup(FAN_1, GPIO.OUT)
-# GPIO.setup(FAN_2, GPIO_OUT)
+# GPIO.setup(FAN_2, GPIO.OUT)
 
 use_thermometer = True
 
@@ -144,17 +144,17 @@ class TemperatureSM(sm.SM):
 
 class AlbaeApp(App):
 
-    def plus_system_temp(self, instance):          self.change_system_temp(
-        self.system_temp, 0.1)
+    def plus_system_temp(self, instance):
+        self.change_system_temp(self.system_temp, 0.1)
 
-    def minus_system_temp(self, instance):         self.change_system_temp(
-        self.system_temp, -0.1)
+    def minus_system_temp(self, instance):
+        self.change_system_temp(self.system_temp, -0.1)
 
-    def plus_t_temp(self, instance):               self.change_system_temp(
-        self.target, 0.1)
+    def plus_t_temp(self, instance):
+        self.change_system_temp(self.target, 0.1)
 
-    def minus_t_temp(self, instance):              self.change_system_temp(
-        self.target, -0.1)
+    def minus_t_temp(self, instance):
+        self.change_system_temp(self.target, -0.1)
 
     def change_system_temp(self, instance, value): instance.text = str(
         float(instance.text) + value)

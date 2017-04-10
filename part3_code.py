@@ -17,17 +17,17 @@ import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 
 # GPIOS
-
+PWM = 18
 WATER_PUMP1 = 23
 # WATER_PUMP2 = 24
-
 FAN_1 = 17
 # FAN_2 = 27
 
 GPIO.setup(WATER_PUMP1, GPIO.OUT)
+GPIO.setup(PWM, GPIO.OUT)
 # GPIO.setup(WATER_PUMP2, GPIO.OUT)
 GPIO.setup(FAN_1, GPIO.OUT)
-# GPIO.setup(FAN_2, GPIO_OUT)
+# GPIO.setup(FAN_2, GPIO.OUT)
 
 use_thermometer = True
 
@@ -65,6 +65,7 @@ def read_temp():
 
 def setWaterPumpAndFan():
     wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
+    GPIO.output(PWM, GPIO.HIGH)
     # wp_cw2  = GPIO.PWN(WATER_PUMP2, 1000) unused
     fan_cw = GPIO.PWM(FAN_1, 1000)
     # fan_cw2 = GPIO.PWN(FAN_2, 1000) unused
@@ -130,17 +131,17 @@ class TemperatureSM(sm.SM):
 
 class AlbaeApp(App):
 
-    def plus_system_temp(self, instance):          self.change_system_temp(
-        self.system_temp, 0.1)
+    def plus_system_temp(self, instance):
+        self.change_system_temp(self.system_temp, 0.1)
 
-    def minus_system_temp(self, instance):         self.change_system_temp(
-        self.system_temp, -0.1)
+    def minus_system_temp(self, instance):
+        self.change_system_temp(self.system_temp, -0.1)
 
-    def plus_t_temp(self, instance):               self.change_system_temp(
-        self.target, 0.1)
+    def plus_t_temp(self, instance):
+        self.change_system_temp(self.target, 0.1)
 
-    def minus_t_temp(self, instance):              self.change_system_temp(
-        self.target, -0.1)
+    def minus_t_temp(self, instance):
+        self.change_system_temp(self.target, -0.1)
 
     def change_system_temp(self, instance, value): instance.text = str(
         float(instance.text) + value)

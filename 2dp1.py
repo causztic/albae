@@ -17,7 +17,7 @@ FAN_2 = 27
 GPIO.setup(WATER_PUMP1, GPIO.OUT)
 GPIO.setup(WATER_PUMP2, GPIO.OUT)
 GPIO.setup(FAN_1, GPIO.OUT)
-GPIO.setup(FAN_2, GPIO_OUT)
+GPIO.setup(FAN_2, GPIO.OUT)
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -52,13 +52,12 @@ def read_temp():
 def setWaterPumpAndFan():
     wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
     # wp_cw2  = GPIO.PWN(WATER_PUMP2, 1000) unused
-    fan_cw = GPIO.PWM(FAN_1, 1000) unused
+    fan_cw = GPIO.PWM(FAN_1, 1000) # unused
     # fan_cw2 = GPIO.PWN(FAN_2, 1000) unused
     wp_cw.start(0)
     # wp_cw2.start(0)
     fan_cw.start(0)
     # fan_cw2.start(0)
-    
     return wp_cw, fan_cw
 
 
@@ -85,11 +84,11 @@ class TemperatureSM(sm.SM):
         return nextState, (power, power)
 
 tsm = TemperatureSM()
-f = setWaterPumpAndFan()
+wp, f = setWaterPumpAndFan()
 
 while (True):
     temperature = read_temp() # read temperature from function
     wp_power, f_power = tsm.step(temperature) # step with temperature, get the power
-    f.ChangeDutyCycle(f_power * 100) # convert the power to 0 to 100 for duty cycle
+    f.ChangeDutyCycle(f_power * 100.0) # convert the power to 0 to 100 for duty cycle
     wp.ChangeDutyCycle(wp_power * 100.0) # convert the power to a range of 0 to 100 for duty cycle
     time.sleep(1) # check every 1 second

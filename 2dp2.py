@@ -93,11 +93,11 @@ class TemperatureSM(sm.SM):
     def set_optimal(self, value):
         self._optimal = float(value)
 
-
     def getNextValues(self, state, inp):
+        scaled = self.k * abs(self.optimal - float(inp))
         power = 1.0
         nextState = "cold"
-        if float(inp) > self.optimal:
+        if float(inp) >= self.optimal:
             nextState = "hot"
         elif float(inp) < self.optimal:
             nextState = "cold"
@@ -105,7 +105,10 @@ class TemperatureSM(sm.SM):
         print nextState, self.optimal, inp
 
         if state == "hot":
-            power = 1.0
+            if scaled >= 1.0:
+                power = 1.0
+            else:
+                power = scaled
         elif state == "cold":
             power = 0
 
@@ -116,15 +119,24 @@ class AlbaeApp(App):
 
     # def system_temp_change(self, instance, value): self.updateGUI(value)
 
-    # def target_temp_change(self, instance, value): 
+    # def target_temp_change(self, instance, value):
     #     self.tsm.optimal = float(value)
     #     self.updateGUI(self.system_temp.text)
 
-    def plus_system_temp(self, instance):          self.change_system_temp(self.system_temp, 0.1)
-    def minus_system_temp(self, instance):         self.change_system_temp(self.system_temp, -0.1)
-    def plus_t_temp(self, instance):               self.change_system_temp(self.target, 0.1)
-    def minus_t_temp(self, instance):              self.change_system_temp(self.target, -0.1)
-    def change_system_temp(self, instance, value): instance.text = str(float(instance.text) + value)
+    def plus_system_temp(self, instance):          self.change_system_temp(
+        self.system_temp, 0.1)
+
+    def minus_system_temp(self, instance):         self.change_system_temp(
+        self.system_temp, -0.1)
+
+    def plus_t_temp(self, instance):               self.change_system_temp(
+        self.target, 0.1)
+
+    def minus_t_temp(self, instance):              self.change_system_temp(
+        self.target, -0.1)
+
+    def change_system_temp(self, instance, value): instance.text = str(
+        float(instance.text) + value)
 
     def __init__(self, **kwargs):
         App.__init__(self, **kwargs)
@@ -135,12 +147,15 @@ class AlbaeApp(App):
         self.target = TextInput(text=str(self.tsm.optimal))
         # self.target.bind(text=self.target_temp_change)
         self.increment_t_temp_btn = Button(on_press=self.plus_t_temp, text="+")
-        self.decrement_t_temp_btn = Button(on_press=self.minus_t_temp, text="-")
+        self.decrement_t_temp_btn = Button(
+            on_press=self.minus_t_temp, text="-")
 
         self.system_temp = TextInput(text=str(25.0))
         # self.system_temp.bind(text=self.system_temp_change)
-        self.increment_sys_temp_btn = Button(on_press=self.plus_system_temp, text="+")
-        self.decrement_sys_temp_btn = Button(on_press=self.minus_system_temp, text="-")
+        self.increment_sys_temp_btn = Button(
+            on_press=self.plus_system_temp, text="+")
+        self.decrement_sys_temp_btn = Button(
+            on_press=self.minus_system_temp, text="-")
 
         self.surr_temp = Label(
             text=read_temp() if use_thermometer else "Not detected")
@@ -167,7 +182,8 @@ class AlbaeApp(App):
             main.add_widget(box)
 
             # use clock to check for system_temp updates instead of on_text
-            Clock.schedule_interval(partial(self.updateGUI, self.system_temp), 1)
+            Clock.schedule_interval(
+                partial(self.updateGUI, self.system_temp), 1)
 
         main.add_widget(
             Label(text="Algae Temperature \n (if thermometer is detected)", halign="center"))
@@ -189,8 +205,8 @@ class AlbaeApp(App):
         else:
             temp = float(temp.text)
         fan_power, wp_power = self.tsm.step(temp)
-        self.fp.text = str(fan_power*100) + "%"
-        self.wpp.text = str(wp_power*100) + "%"
+        self.fp.text = str(fan_power * 100) + "%"
+        self.wpp.text = str(wp_power * 100) + "%"
 
         if use_thermometer:
             self.surr_temp = str(temp)

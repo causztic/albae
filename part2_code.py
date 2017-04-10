@@ -19,7 +19,6 @@ import glob
 import time
 
 from functools import partial
-from libdw import sm
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
@@ -28,25 +27,12 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.clock import Clock
 
-# import RPi.GPIO as GPIO
-
-# GPIO.setmode(GPIO.BCM)
-
-# GPIOS
-
-# WATER_PUMP1 = 23
-# WATER_PUMP2 = 24
-
-# FAN_1 = 17
-# FAN_2 = 27
-
-# GPIO.setup(WATER_PUMP1, GPIO.OUT)
-# GPIO.setup(WATER_PUMP2, GPIO.OUT)
-# GPIO.setup(FAN_1, GPIO.OUT)
-# GPIO.setup(FAN_2, GPIO.OUT)
+from temperature_sm import TemperatureSM
 
 use_thermometer = True
 
+# attempt to detect Thermometer for use with GUI.
+# if Thermometer not detected, use manual temperature input.
 try:
     os.system('modprobe w1-gpio')
     os.system('modprobe w1-therm')
@@ -60,6 +46,7 @@ except:
 
 
 def read_temp_raw():
+    """ Read the temperature raw."""
     f = open(device_file, 'r')
     lines = f.readlines()
     f.close()
@@ -67,6 +54,7 @@ def read_temp_raw():
 
 
 def read_temp():
+    """ convert the raw input into celsius. """
     lines = read_temp_raw()
     while lines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
@@ -75,89 +63,29 @@ def read_temp():
     if equals_pos != -1:
         temp_string = lines[1][equals_pos + 2:]
         temp_c = float(temp_string) / 1000.0
-        # temp_f = temp_c * 9.0 / 5.0 + 32.0
         return temp_c
 
-
-# def setWaterPumpAndFan():
-#     wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
-#     # wp_cw2  = GPIO.PWN(WATER_PUMP2, 1000) unused
-#     fan_cw = GPIO.PWM(FAN_1, 1000) unused
-#     # fan_cw2 = GPIO.PWN(FAN_2, 1000) unused
-#     wp_cw.start(0)
-#     # wp_cw2.start(0)
-#     fan_cw.start(0)
-#     # fan_cw2.start(0)
-
-#     return wp_cw, fan_cw
-
-
-class TemperatureSM(sm.SM):
-
-    startState = "cold"
-    k0 = 1
-    k1 = 2
-
-    def __init__(self):
-        self.state = self.startState
-        self._optimal = 27.0
-        self.previous_temp = None
-
-    @property
-    def optimal(self):
-        return self._optimal
-
-    @optimal.setter
-    def set_optimal(self, value):
-        self._optimal = float(value)
-
-    def getNextValues(self, state, inp):
-        scaled = self.k0 * abs(self.optimal - float(inp))
-
-        if self.previous_temp is not None:
-            scaled += self.k1 * (abs(self.optimal - float(inp)) - abs(self.optimal - self.previous_temp))
-
-        self.previous_temp = float(inp)
-        power = 1.0
-        nextState = "cold"
-
-        if float(inp) >= self.optimal:
-            nextState = "hot"
-        elif float(inp) < self.optimal:
-            nextState = "cold"
-
-        if state == "hot":
-            if scaled >= 1.0:
-                power = 1.0
-            elif scaled < 0:
-                power = 0.0
-            else:
-                power = scaled
-        elif state == "cold":
-            if scaled < 0:
-                power = 0.0
-            else:
-                power = 0.0
-
-        return nextState, (power, power)
-
-
 class AlbaeApp(App):
-
+    """ Main GUI App. """
     def plus_system_temp(self, instance):
+        """Add to system temperature by 0.1"""
         self.change_system_temp(self.system_temp, 0.1)
 
     def minus_system_temp(self, instance):
+        """Decrease system temperature by 0.1"""
         self.change_system_temp(self.system_temp, -0.1)
 
     def plus_t_temp(self, instance):
+        """increase target temperature by 0.1"""
         self.change_system_temp(self.target, 0.1)
 
     def minus_t_temp(self, instance):
+        """decrease target temperature by 0.1"""
         self.change_system_temp(self.target, -0.1)
 
-    def change_system_temp(self, instance, value): instance.text = str(
-        float(instance.text) + value)
+    def change_system_temp(self, instance, value):
+        """ update text """
+        instance.text = str(float(instance.text) + value)
 
     def __init__(self, **kwargs):
         App.__init__(self, **kwargs)
@@ -166,13 +94,11 @@ class AlbaeApp(App):
         self.wpp = Label(text="0.0%")
 
         self.target = TextInput(text=str(self.tsm.optimal))
-        # self.target.bind(text=self.target_temp_change)
         self.increment_t_temp_btn = Button(on_press=self.plus_t_temp, text="+")
         self.decrement_t_temp_btn = Button(
             on_press=self.minus_t_temp, text="-")
 
         self.system_temp = TextInput(text=str(25.0))
-        # self.system_temp.bind(text=self.system_temp_change)
         self.increment_sys_temp_btn = Button(
             on_press=self.plus_system_temp, text="+")
         self.decrement_sys_temp_btn = Button(
@@ -182,7 +108,7 @@ class AlbaeApp(App):
             text=str(read_temp()) if use_thermometer else "Not detected")
 
     def build(self):
-
+        # build the main layout
         main = GridLayout(cols=2)
 
         main.add_widget(Label(text="Target Temperature in Celsius"))
@@ -194,6 +120,7 @@ class AlbaeApp(App):
         main.add_widget(tbox)
 
         if not use_thermometer:
+            # if thermometer not detected, use the manual controls.
             main.add_widget(Label(text="Change the System Temperature"))
 
             box = BoxLayout(orientation="horizontal")
@@ -215,6 +142,7 @@ class AlbaeApp(App):
 
         main.add_widget(Label(text="Water Pump Power"))
         main.add_widget(self.wpp)
+
         if use_thermometer:
             # if thermometer is detected,
             # use clock to check for system_temp updates instead of on_text
@@ -223,7 +151,8 @@ class AlbaeApp(App):
 
         return main
 
-    def updateGUI(self, temp=None, *largs):
+    def updateGUI(self, temp=None):
+        """ Update GUI based on state machine."""
         self.tsm.optimal = float(self.target.text)
         temp = float(read_temp()) if use_thermometer else float(temp.text)
 

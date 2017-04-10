@@ -222,7 +222,11 @@ class AlbaeApp(App):
         main.add_widget(Label(text="Water Pump Power"))
         main.add_widget(self.wpp)
         if use_thermometer:
-            Clock.schedule_interval(self.updateGUI(), 1)
+            # if thermometer is detected,
+            # use clock to check for system_temp updates instead of on_text
+            Clock.schedule_interval(
+                partial(self.updateGUI), 1)
+
         return main
 
     def updateGUI(self, temp=None, *largs):

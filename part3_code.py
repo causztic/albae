@@ -88,7 +88,6 @@ class AlgaeContainer(object):
             print "%d:%02d:%02d - Temperature: %.1f" % (h, m, s, self.temperature.level)
             yield env.timeout(1)
 
-
 class Surroundings(object):
     """
     Class to simulate the surrounding temperature.
@@ -100,7 +99,7 @@ class Surroundings(object):
     def __init__(self, env):
         self.temperature = 25.0
         env.process(self.day_night_cycle(env))
-        env.process(self.conduction(env, algae_container))
+        env.process(self.heat_up(env, algae_container))
 
     def day_night_cycle(self, env):
         """simulate a 24-hour cycle with temperature changes."""
@@ -121,7 +120,7 @@ class Surroundings(object):
             # to midnight and restart again
             yield env.timeout(60 * 60 * 5)
 
-    def conduction(self, env, algae_container):
+    def heat_up(self, env, algae_container):
         """ Combination of radiation, conduction and convection """
         while True:
             # inverse of thermal resistance of air between the bottle and the
@@ -157,10 +156,10 @@ class Controller(object):
             yield env.timeout(1)
 
 # create initial conditions.
-env = simpy.RealtimeEnvironment(factor=0.005)
-#env = simpy.Environment()
-algae_container = AlgaeContainer(env)
-surr = Surroundings(env)
+rte = simpy.RealtimeEnvironment(factor=0.005)
+#rte = simpy.Environment()
+algae_container = AlgaeContainer(rte)
+surr = Surroundings(rte)
 controller = Controller()
 
-env.run(60 * 60 * 24)  # run for a day
+rte.run(60 * 60 * 24)  # run for a day

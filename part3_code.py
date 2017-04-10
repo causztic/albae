@@ -66,8 +66,8 @@ def setWaterPumpAndFan():
 
     
     GPIO.output(FAN_2, GPIO.LOW)
-    GPIO.output(WATER_PUMP1, GPIO)
-    
+    GPIO.output(WATER_PUMP2, GPIO.LOW)
+
     wp_cw = GPIO.PWM(WATER_PUMP1, 1000)
     fan_cw = GPIO.PWM(FAN_1, 1000)
     

@@ -114,11 +114,11 @@ class TemperatureSM(sm.SM):
 
 class AlbaeApp(App):
 
-    def system_temp_change(self, instance, value): self.updateGUI(value)
+    # def system_temp_change(self, instance, value): self.updateGUI(value)
 
-    def target_temp_change(self, instance, value): 
-        self.tsm.optimal = float(value)
-        self.updateGUI(self.system_temp.text)
+    # def target_temp_change(self, instance, value): 
+    #     self.tsm.optimal = float(value)
+    #     self.updateGUI(self.system_temp.text)
 
     def plus_system_temp(self, instance):          self.change_system_temp(self.system_temp, 0.1)
     def minus_system_temp(self, instance):         self.change_system_temp(self.system_temp, -0.1)
@@ -133,12 +133,12 @@ class AlbaeApp(App):
         self.wpp = Label(text="0.0%")
 
         self.target = TextInput(text=str(self.tsm.optimal))
-        self.target.bind(text=self.target_temp_change)
+        # self.target.bind(text=self.target_temp_change)
         self.increment_t_temp_btn = Button(on_press=self.plus_t_temp, text="+")
         self.decrement_t_temp_btn = Button(on_press=self.minus_t_temp, text="-")
 
         self.system_temp = TextInput(text=str(25.0))
-        self.system_temp.bind(text=self.system_temp_change)
+        # self.system_temp.bind(text=self.system_temp_change)
         self.increment_sys_temp_btn = Button(on_press=self.plus_system_temp, text="+")
         self.decrement_sys_temp_btn = Button(on_press=self.minus_system_temp, text="-")
 
@@ -166,6 +166,9 @@ class AlbaeApp(App):
             box.add_widget(self.decrement_sys_temp_btn)
             main.add_widget(box)
 
+            # use clock to check for system_temp updates instead of on_text
+            Clock.schedule_interval(partial(self.updateGUI, self.system_temp), 1)
+
         main.add_widget(
             Label(text="Algae Temperature \n (if thermometer is detected)", halign="center"))
         main.add_widget(self.surr_temp)
@@ -179,9 +182,12 @@ class AlbaeApp(App):
             Clock.schedule_interval(self.updateGUI(), 1)
         return main
 
-    def updateGUI(self, temp=None):
+    def updateGUI(self, temp=None, *largs):
+        self.tsm.optimal = float(self.target.text)
         if not temp:
             temp = read_temp()
+        else:
+            temp = float(temp.text)
         fan_power, wp_power = self.tsm.step(temp)
         self.fp.text = str(fan_power*100) + "%"
         self.wpp.text = str(wp_power*100) + "%"

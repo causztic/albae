@@ -185,7 +185,7 @@ class AlbaeApp(App):
             on_press=self.minus_system_temp, text="-")
 
         self.surr_temp = Label(
-            text=float(read_temp()) if use_thermometer else "Not detected")
+            text=str(read_temp()) if use_thermometer else "Not detected")
 
     def build(self):
 

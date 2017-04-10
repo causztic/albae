@@ -1,3 +1,19 @@
+'''
+PART 2.1
+
+We decided to use the Proportional-Derivative controller so that we are able to detect sudden temperature changes
+in the algae, and increase the fan and water pump's power accordingly.
+
+The function is in the form:
+power = k0 * abs(optimal - current) + k1 * [ abs(optimal - current) - abs(optimal - previous) ], and scaled from 0 to 1.
+
+k0 is 1 while k1 is 2.
+This is because the rate of change is more crucial to regulating the temperature of the algae culture, to protect
+it from sudden increase in surrounding temperature.
+
+'''
+
+
 import os
 import glob
 import time
@@ -79,11 +95,13 @@ def read_temp():
 class TemperatureSM(sm.SM):
 
     startState = "cold"
-    k = 1
+    k0 = 1
+    k1 = 2
 
     def __init__(self):
         self.state = self.startState
         self._optimal = 27.0
+        self.previous_temp = None
 
     @property
     def optimal(self):
@@ -94,23 +112,32 @@ class TemperatureSM(sm.SM):
         self._optimal = float(value)
 
     def getNextValues(self, state, inp):
-        scaled = self.k * abs(self.optimal - float(inp))
+        scaled = self.k0 * abs(self.optimal - float(inp))
+
+        if self.previous_temp is not None:
+            scaled += self.k1 * (abs(self.optimal - float(inp)) - abs(self.optimal - self.previous_temp))
+
+        self.previous_temp = float(inp)
         power = 1.0
         nextState = "cold"
+
         if float(inp) >= self.optimal:
             nextState = "hot"
         elif float(inp) < self.optimal:
             nextState = "cold"
 
-        print nextState, self.optimal, inp
-
         if state == "hot":
             if scaled >= 1.0:
                 power = 1.0
+            elif scaled < 0:
+                power = 0.0
             else:
                 power = scaled
         elif state == "cold":
-            power = 0
+            if scaled < 0:
+                power = 0.0
+            else:
+                power = 0.0
 
         return nextState, (power, power)
 

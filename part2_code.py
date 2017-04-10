@@ -144,12 +144,6 @@ class TemperatureSM(sm.SM):
 
 class AlbaeApp(App):
 
-    # def system_temp_change(self, instance, value): self.updateGUI(value)
-
-    # def target_temp_change(self, instance, value):
-    #     self.tsm.optimal = float(value)
-    #     self.updateGUI(self.system_temp.text)
-
     def plus_system_temp(self, instance):          self.change_system_temp(
         self.system_temp, 0.1)
 
@@ -231,10 +225,12 @@ class AlbaeApp(App):
 
     def updateGUI(self, temp=None, *largs):
         self.tsm.optimal = float(self.target.text)
-        if not temp:
+        
+        if use_thermometer:
             temp = read_temp()
         else:
             temp = float(temp.text)
+
         fan_power, wp_power = self.tsm.step(temp)
         self.fp.text = str(fan_power * 100) + "%"
         self.wpp.text = str(wp_power * 100) + "%"

@@ -13,21 +13,27 @@ import simpy
 import random
 from constants import REDIS_SERVER
 
+
 class WaterPump(object):
+
     def __init__(self, env):
         self.env = env
         self.power = 0.0
         env.process(self.pump_water(env))
 
     def pump_water(self, env):
-        while True: 
+        while True:
             self.power = float(REDIS_SERVER.get("wp_power") or 0)
-            # the power will affect the rate of water pump and hence affecting the temperature.
-            REDIS_SERVER.set("diff", ((-4*self.power)/(167.44+2*self.power)) * float(REDIS_SERVER.get("temperature") or 0) + ((6+4*25)*self.power) / (2*self.power + 167.44))
+            # the power will affect the rate of water pump and hence affecting
+            # the temperature.
+            REDIS_SERVER.set("wp_diff", ((-4 * self.power) / (167.44 + 2 * self.power)) * float(
+                REDIS_SERVER.get("temperature") or 0) + ((6 + 4 * 25) * self.power) / (2 * self.power + 167.44))
             REDIS_SERVER.set("wp_power", 0)
             yield env.timeout(1)
 
+
 class Fan(object):
+
     def __init__(self, env):
         self.env = env
         self.power = 0.0
@@ -48,7 +54,7 @@ class AlgaeContainer(object):
 
     def __init__(self, env):
         self.env = env
-        self.temperature = simpy.Container(env, init=30)
+        self.temperature = simpy.Container(env, init=27.0)
         # monitoring the temperature with a simulated thermometer.
         env.process(self.monitor_temperature(env))
 
@@ -59,19 +65,28 @@ class AlgaeContainer(object):
             m, s = divmod(env.now, 60)
             h, m = divmod(m, 60)
             print "%d:%02d:%02d - Temperature: %.2f" % (h, m, s, self.temperature.level)
+
+            # temperature difference caused by surroundings
             diff = REDIS_SERVER.get("diff")
-            if diff is not None:
-                diff = float(diff)
-                if diff > 0:
-                    self.temperature.put(diff)
-                elif diff < 0:
-                    self.temperature.get(abs(diff))
+            # temperature difference caused by water pump
+            wp_diff = REDIS_SERVER.get("wp_diff")
+
+            diff = float(diff or 0)
+            if diff > 0:
+                self.temperature.put(diff)
+            elif diff < 0:
+                self.temperature.get(abs(diff))
+
+            wp_diff = float(wp_diff or 0)
+            if wp_diff < 0:
+                self.temperature.get(abs(wp_diff))
+
             REDIS_SERVER.set("diff", 0)
             REDIS_SERVER.set("temperature", self.temperature.level)
 
             yield env.timeout(1)
 # clear redis-server
-REDIS_SERVER.delete("diff", "temperature", "wp_power", "fan_power")
+REDIS_SERVER.delete("diff", "temperature", "wp_power", "fan_power", "wp_diff")
 # create initial conditions.
 rte = simpy.RealtimeEnvironment(factor=0.1)
 algae_container = AlgaeContainer(rte)

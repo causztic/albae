@@ -13,3 +13,14 @@ Shawn 1002273
 Wang Zhi 1002203
 
 10.21.131.167
+
+## Instructions
+
+```
+garden install graph
+
+pip install redis
+brew install redis
+
+redis-server
+```

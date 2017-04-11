@@ -12,7 +12,7 @@ class Surroundings(object):
 
     def __init__(self, env):
         self.env = env
-        self.temperature = 25.0
+        self.temperature = 28.0
         self.is_night = True
         env.process(self.day_night_cycle(env))
         env.process(self.heat_up(env))
@@ -34,18 +34,18 @@ class Surroundings(object):
             # after 6, go back to room temperature
             yield env.timeout(60 * 60 * 3)
             self.is_night = True
-            self.temperature = 25.0
+            self.temperature = 28.0
             # to midnight and restart again
             yield env.timeout(60 * 60 * 6)
 
     def heat_up(self, env):
-        """ Apply convection on the system, and sunlight on the bottle """
-        SUNLIGHT = 1.5
+        """ Apply convection on the system, and sunlight on the bottle. Turn off sunlight when it's night time. """
+        SUNLIGHT = 3
         while True:
             l = 0.15
             if self.is_night:
                 SUNLIGHT = 0
-            temp_diff = l / (167.44 - l / 2) * float(REDIS_SERVER.get("temperature") or 0) + (SUNLIGHT-l*self.temperature) / (167.44-l/2)
+            temp_diff = -l / (167.44 + l / 2) * float(REDIS_SERVER.get("temperature") or 0) + (SUNLIGHT+l*self.temperature) / (167.44+l/2)
             REDIS_SERVER.set("diff", temp_diff)
             print temp_diff
             yield env.timeout(1)

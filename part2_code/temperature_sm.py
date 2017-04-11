@@ -3,9 +3,9 @@ from libdw import sm
 class TemperatureSM(sm.SM):
     """ Temperature State Machine."""
 
-    startState = "hot"
+    startState = "cold"
     k0 = 1
-    k1 = 10
+    k1 = 0.5
 
     def __init__(self):
         self.state = self.startState

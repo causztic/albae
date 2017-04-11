@@ -7,9 +7,8 @@ in the algae, and increase the fan and water pump's power accordingly.
 The function is in the form:
 power = k0 * abs(optimal - current) + k1 * [ abs(optimal - current) - abs(optimal - previous) ], and scaled from 0 to 1.
 
-k0 is 1 while k1 is 2.
-This is because the rate of change is more crucial to regulating the temperature of the algae culture, to protect
-it from sudden increase in surrounding temperature.
+k0 is 1 while k1 is 0.5.
+This is to optimize the power consumption based on the current temperature and the project temperature due to rate of change.
 
 '''
 
@@ -82,6 +81,7 @@ class AlbaeApp(App):
         self.wpp = Label(text="0.0%", pos_hint={'x': .72, 'center_y': 0.25}, size_hint=(
             None, None), color=(0, 0, 0, 1))
 
+        # use a custom temperature widget to reduce code redundancy.
         self.system_temperature = TemperatureWidget(
             temperature=25.0, text="System", pos_hint={'x': .25, 'center_y': .5}, size_hint=(None, None))
         self.target_temperature = TemperatureWidget(

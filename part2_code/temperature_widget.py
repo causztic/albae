@@ -22,13 +22,13 @@ class TemperatureWidget(FloatLayout):
                 setattr(self, k, v)
 
         self.widget_text = Label(text=self.text, font_name=(
-            "Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 1.5}, size_hint=(None, None), font_size=64, color=(0,0,0,1))
+            "Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 1.5}, size_hint=(None, None), color=(0,0,0,1))
         self.temperature_text = Label(
-            text=self.pretty_temperature(), font_name=("Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 0}, size_hint=(None, None), font_size=192, color=(0,0,0,1))
+            text=self.pretty_temperature(), font_name=("Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 0}, size_hint=(None, None), color=(0,0,0,1))
         self.increment_temp_btn = Button(on_press=self.plus_temp, text="+", font_name=(
-            "Lato-Bold.ttf"), pos_hint={'x': -0.5, 'center_y': -1.5}, size_hint=(None, None), font_size=64)
+            "Lato-Bold.ttf"), pos_hint={'x': -0.5, 'center_y': -1.5}, size_hint=(None, None))
         self.decrement_temp_btn = Button(on_press=self.minus_temp, text="-", font_name=(
-            "Lato-Bold.ttf"), pos_hint={'x': 0.95, 'center_y': -1.5}, size_hint=(None, None), font_size=64)
+            "Lato-Bold.ttf"), pos_hint={'x': 0.95, 'center_y': -1.5}, size_hint=(None, None))
 
         self.add_widget(self.widget_text)
         self.add_widget(self.temperature_text)
@@ -38,7 +38,6 @@ class TemperatureWidget(FloatLayout):
             self.add_widget(self.decrement_temp_btn)
         else:
             self.temperature_text.text = "-"
-            self.temperature_text.font_size = 128
 
     def plus_temp(self, instance):
         """increase target temperature by 0.1"""

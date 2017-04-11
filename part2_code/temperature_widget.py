@@ -50,7 +50,7 @@ class TemperatureWidget(FloatLayout):
 
     def update_temperature(self, temp):
         self.temperature = float(temp)
-        self.temperature_text = str(temp)
+        self.temperature_text.text = str(temp)
 
     def update_color(self, state):
         if state == "hot":

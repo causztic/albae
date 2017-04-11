@@ -36,7 +36,7 @@ from temperature_widget import TemperatureWidget
 use_thermometer = True
 GPIO.setmode(GPIO.BCM)
 WATER_PUMP = 18
-GPIO.setup(WATER_PUMP, GPIO.OUTPUT)
+GPIO.setup(WATER_PUMP, GPIO.OUT)
 # attempt to detect Thermometer for use with GUI.
 # if Thermometer not detected, use manual temperature input.
 try:

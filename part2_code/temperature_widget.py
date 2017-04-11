@@ -4,6 +4,7 @@ from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 
 
+
 class TemperatureWidget(FloatLayout):
 
     def pretty_temperature(self):
@@ -33,7 +34,7 @@ class TemperatureWidget(FloatLayout):
 
         self.add_widget(self.widget_text)
         self.add_widget(self.temperature_text)
-        self.temperature = float(self.temperature)
+        self.temperature = float(self.temperature or 0)
         if not self.disable_button:
             self.add_widget(self.increment_temp_btn)
             self.add_widget(self.decrement_temp_btn)

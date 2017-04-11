@@ -93,14 +93,23 @@ class Controller(object):
         if wp_power > 0:
             # maximum power = 5
             yield algae_container.temperature.get(1.25 * wp_power)
+            power_consumption += wp_power * 5
+        else:
+            yield env.timeout(1)
+
+        if fan_power > 0:
+            yield algae_container.temperature.get(0.95 * fan_power)
+            power_consumption += fan_power * 5
         else:
             yield env.timeout(1)
 
 # create initial conditions.
+power_consumption = 0
 rte = simpy.RealtimeEnvironment(factor=0.005)
 #rte = simpy.Environment()
 algae_container = AlgaeContainer(rte)
 surr = Surroundings(rte)
 controller = Controller()
 
-rte.run(60 * 60 * 24)  # run for a day
+rte.run(60 * 60 * 24 * 7)  # run for a week
+print power_consumption

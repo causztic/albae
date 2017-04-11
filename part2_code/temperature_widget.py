@@ -14,9 +14,10 @@ class TemperatureWidget(FloatLayout):
         FloatLayout.__init__(self, **kwargs)
 
         self.temperature = None
+        self.disable_button = False
         self.text = ""
 
-        acceptable_keys_list = ["temperature", "text"]
+        acceptable_keys_list = ["temperature", "text", "disable_button"]
         for (k, v) in kwargs.iteritems():
             if k in acceptable_keys_list:
                 setattr(self, k, v)
@@ -32,12 +33,10 @@ class TemperatureWidget(FloatLayout):
 
         self.add_widget(self.widget_text)
         self.add_widget(self.temperature_text)
-        if self.temperature is not None:
-            self.temperature = float(self.temperature)
+        self.temperature = float(self.temperature)
+        if not self.disable_button:
             self.add_widget(self.increment_temp_btn)
             self.add_widget(self.decrement_temp_btn)
-        else:
-            self.temperature_text.text = "-"
 
     def plus_temp(self, instance):
         """increase target temperature by 0.1"""

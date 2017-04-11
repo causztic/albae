@@ -85,16 +85,15 @@ class AlbaeApp(App):
             None, None), color=(0, 0, 0, 1))
 
         # use a custom temperature widget to reduce code redundancy.
-        self.system_temperature = TemperatureWidget(
-            temperature=25.0, text="System", pos_hint={'x': .25, 'center_y': .5}, size_hint=(None, None))
+        if use_thermometer:
+          self.system_temperature = TemperatureWidget(
+              temperature=read_temp(), text="System", pos_hint={'x': .25, 'center_y': .5}, size_hint=(None, None), disable_button=True)
+        else:
+            self.system_temperature = TemperatureWidget(
+              temperature=25.0, text="System (Manual, Thermometer not detected)", pos_hint={'x': .25, 'center_y': .5}, size_hint=(None, None))
+
         self.target_temperature = TemperatureWidget(
             temperature=27.0, text="Target", pos_hint={'x': .65, 'center_y': .5}, size_hint=(None, None))
-        if use_thermometer:
-            self.surrounding_temperature = TemperatureWidget(temperature=read_temp(
-            ), text="Surroundings", pos_hint={'x': .45, 'center_y': .75}, size_hint=(None, None))
-        else:
-            self.surrounding_temperature = TemperatureWidget(text="Surroundings",
-                                                             pos_hint={'x': .45, 'center_y': .75}, size_hint=(None, None))
 
     def build(self):
         # build the main layout
@@ -104,10 +103,7 @@ class AlbaeApp(App):
         main = FloatLayout()
         Window.clearcolor = (1, 1, 1, 1)
         main.add_widget(self.target_temperature)
-        if not use_thermometer:
-            # if thermometer not detected, use the manual controls.
-            main.add_widget(self.system_temperature)
-        main.add_widget(self.surrounding_temperature)
+        main.add_widget(self.system_temperature)
 
         main.add_widget(Label(text="Fan Power",  pos_hint={
                         'x': .22, 'center_y': .25}, size_hint=(None, None), color=(0, 0, 0, 1)))
@@ -136,7 +132,7 @@ class AlbaeApp(App):
 
         self.system_temperature.update_color(self.tsm.state)
         if use_thermometer:
-            self.surrounding_temperature.update_temperature(temp)
+            self.system_temperature.update_temperature(temp)
 
 if __name__ == '__main__':
     AlbaeApp(name="Albae").run()

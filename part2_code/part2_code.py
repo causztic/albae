@@ -20,6 +20,7 @@ import time
 
 from functools import partial
 from kivy.app import App
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -28,6 +29,7 @@ from kivy.uix.button import Button
 from kivy.clock import Clock
 
 from temperature_sm import TemperatureSM
+from temperature_widget import TemperatureWidget
 
 use_thermometer = True
 
@@ -67,25 +69,6 @@ def read_temp():
 
 class AlbaeApp(App):
     """ Main GUI App. """
-    def plus_system_temp(self, instance):
-        """Add to system temperature by 0.1"""
-        self.change_system_temp(self.system_temp, 0.1)
-
-    def minus_system_temp(self, instance):
-        """Decrease system temperature by 0.1"""
-        self.change_system_temp(self.system_temp, -0.1)
-
-    def plus_t_temp(self, instance):
-        """increase target temperature by 0.1"""
-        self.change_system_temp(self.target, 0.1)
-
-    def minus_t_temp(self, instance):
-        """decrease target temperature by 0.1"""
-        self.change_system_temp(self.target, -0.1)
-
-    def change_system_temp(self, instance, value):
-        """ update text """
-        instance.text = str(float(instance.text) + value)
 
     def __init__(self, **kwargs):
         App.__init__(self, **kwargs)
@@ -93,16 +76,8 @@ class AlbaeApp(App):
         self.fp = Label(text="0.0%")
         self.wpp = Label(text="0.0%")
 
-        self.target = TextInput(text=str(self.tsm.optimal))
-        self.increment_t_temp_btn = Button(on_press=self.plus_t_temp, text="+")
-        self.decrement_t_temp_btn = Button(
-            on_press=self.minus_t_temp, text="-")
-
-        self.system_temp = TextInput(text=str(25.0))
-        self.increment_sys_temp_btn = Button(
-            on_press=self.plus_system_temp, text="+")
-        self.decrement_sys_temp_btn = Button(
-            on_press=self.minus_system_temp, text="-")
+        self.system_temperature = TemperatureWidget(temperature=25.0)
+        self.target_temperature = TemperatureWidget(temperature=27.0)
 
         self.surr_temp = Label(
             text=str(read_temp()) if use_thermometer else "Not detected")
@@ -110,28 +85,16 @@ class AlbaeApp(App):
     def build(self):
         # build the main layout
         main = GridLayout(cols=2)
-
-        main.add_widget(Label(text="Target Temperature in Celsius"))
-
         tbox = BoxLayout(orientation="horizontal")
-        tbox.add_widget(self.target)
-        tbox.add_widget(self.increment_t_temp_btn)
-        tbox.add_widget(self.decrement_t_temp_btn)
+
+        tbox.add_widget(self.target_temperature)
         main.add_widget(tbox)
 
         if not use_thermometer:
             # if thermometer not detected, use the manual controls.
-            main.add_widget(Label(text="Change the System Temperature"))
-
             box = BoxLayout(orientation="horizontal")
-            box.add_widget(self.system_temp)
-            box.add_widget(self.increment_sys_temp_btn)
-            box.add_widget(self.decrement_sys_temp_btn)
+            box.add_widget(self.system_temperature)
             main.add_widget(box)
-
-            # use clock to check for system_temp updates instead of on_text
-            Clock.schedule_interval(
-                partial(self.updateGUI, self.system_temp), 1)
 
         main.add_widget(
             Label(text="Algae Temperature \n (if thermometer is detected)", halign="center"))
@@ -143,18 +106,14 @@ class AlbaeApp(App):
         main.add_widget(Label(text="Water Pump Power"))
         main.add_widget(self.wpp)
 
-        if use_thermometer:
-            # if thermometer is detected,
-            # use clock to check for system_temp updates instead of on_text
-            Clock.schedule_interval(
-                partial(self.updateGUI), 1)
+        Clock.schedule_interval(partial(self.updateGUI), 1)
 
         return main
 
-    def updateGUI(self, temp=None):
+    def updateGUI(self, *largs):
         """ Update GUI based on state machine."""
-        self.tsm.optimal = float(self.target.text)
-        temp = float(read_temp()) if use_thermometer else float(temp.text)
+        self.tsm.optimal = float(self.target_temperature.temperature)
+        temp = float(read_temp()) if use_thermometer else float(self.system_temperature.temperature)
 
         fan_power, wp_power = self.tsm.step(temp)
         self.fp.text = str(fan_power * 100) + "%"
@@ -162,7 +121,6 @@ class AlbaeApp(App):
 
         if use_thermometer:
             self.surr_temp.text = str(temp)
-
 
 if __name__ == '__main__':
     AlbaeApp(name="Albae").run()

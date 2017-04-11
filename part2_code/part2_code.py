@@ -28,6 +28,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.garden.graph import Graph, MeshLinePlot
 
 from temperature_sm import TemperatureSM
 from temperature_widget import TemperatureWidget
@@ -74,9 +75,12 @@ class AlbaeApp(App):
 
     def __init__(self, **kwargs):
         App.__init__(self, **kwargs)
+        self.temps = []
         self.tsm = TemperatureSM()
-        self.fp = Label(text="0.0%", pos_hint={'x': .30, 'center_y': 0.25}, size_hint=(None, None), color=(0,0,0,1))
-        self.wpp = Label(text="0.0%", pos_hint={'x': .72, 'center_y': 0.25}, size_hint=(None, None), color=(0,0,0,1))
+        self.fp = Label(text="0.0%", pos_hint={'x': .30, 'center_y': 0.25}, size_hint=(
+            None, None), color=(0, 0, 0, 1))
+        self.wpp = Label(text="0.0%", pos_hint={'x': .72, 'center_y': 0.25}, size_hint=(
+            None, None), color=(0, 0, 0, 1))
 
         self.system_temperature = TemperatureWidget(
             temperature=25.0, text="System", pos_hint={'x': .25, 'center_y': .5}, size_hint=(None, None))
@@ -87,7 +91,7 @@ class AlbaeApp(App):
             ), text="Surroundings", pos_hint={'x': .45, 'center_y': .75}, size_hint=(None, None))
         else:
             self.surrounding_temperature = TemperatureWidget(text="Surroundings",
-                pos_hint={'x': .45, 'center_y': .75}, size_hint=(None, None))
+                                                             pos_hint={'x': .45, 'center_y': .75}, size_hint=(None, None))
 
     def build(self):
         # build the main layout
@@ -99,23 +103,43 @@ class AlbaeApp(App):
             main.add_widget(self.system_temperature)
         main.add_widget(self.surrounding_temperature)
 
-        main.add_widget(Label(text="Fan Power",  pos_hint={'x': .22, 'center_y': .25}, size_hint=(None, None), color=(0,0,0,1)))
+        main.add_widget(Label(text="Fan Power",  pos_hint={
+                        'x': .22, 'center_y': .25}, size_hint=(None, None), color=(0, 0, 0, 1)))
         main.add_widget(self.fp)
-        main.add_widget(Label(text="Water Pump Power",  pos_hint={'x': .6, 'center_y': .25},size_hint=(None, None),  color=(0,0,0,1)))
+        main.add_widget(Label(text="Water Pump Power",  pos_hint={
+                        'x': .6, 'center_y': .25}, size_hint=(None, None),  color=(0, 0, 0, 1)))
         main.add_widget(self.wpp)
 
+        self.graph = Graph(padding=5, x_grid=True, y_grid=True, ymin=20, ymax=35)
+
+        self.plot = MeshLinePlot(color=[1, 0, 0, 1])
+        self.graph.add_plot(self.plot)
+        main.add_widget(self.graph, 10)
+
         Clock.schedule_interval(partial(self.updateGUI), 1)
+        Clock.schedule_interval(partial(self.update_points), 1)
+        Clock.schedule_interval(partial(self.update_xaxis), 1)
 
         return main
+
+    def update_xaxis(self,*args):
+        self.graph.xmin = len(self.temps) - 50
+        self.graph.xmax = len(self.temps)
+
+    def update_points(self, *args):
+        self.plot.points = [(ind, x) for ind, x in enumerate(self.temps)]
 
     def updateGUI(self, *largs):
         """ Update GUI based on state machine."""
         self.tsm.optimal = float(self.target_temperature.temperature)
-        temp = float(read_temp()) if use_thermometer else float(self.system_temperature.temperature)
+        temp = float(read_temp()) if use_thermometer else float(
+            self.system_temperature.temperature)
+
+        self.temps.append(temp)
 
         fan_power, wp_power = self.tsm.step(temp)
-        self.fp.text = str(round(fan_power,2) * 100) + "%"
-        self.wpp.text = str(round(wp_power,2) * 100) + "%"
+        self.fp.text = str(round(fan_power, 2) * 100) + "%"
+        self.wpp.text = str(round(wp_power, 2) * 100) + "%"
 
         self.system_temperature.update_color(self.tsm.state)
         if use_thermometer:

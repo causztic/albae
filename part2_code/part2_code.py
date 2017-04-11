@@ -27,6 +27,7 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.clock import Clock
+from kivy.core.window import Window
 
 from temperature_sm import TemperatureSM
 from temperature_widget import TemperatureWidget
@@ -67,43 +68,40 @@ def read_temp():
         temp_c = float(temp_string) / 1000.0
         return temp_c
 
+
 class AlbaeApp(App):
     """ Main GUI App. """
 
     def __init__(self, **kwargs):
         App.__init__(self, **kwargs)
         self.tsm = TemperatureSM()
-        self.fp = Label(text="0.0%")
-        self.wpp = Label(text="0.0%")
+        self.fp = Label(text="0.0%", pos_hint={'x': .30, 'center_y': 0.25}, size_hint=(None, None), color=(0,0,0,1))
+        self.wpp = Label(text="0.0%", pos_hint={'x': .72, 'center_y': 0.25}, size_hint=(None, None), color=(0,0,0,1))
 
-        self.system_temperature = TemperatureWidget(temperature=25.0)
-        self.target_temperature = TemperatureWidget(temperature=27.0)
-
-        self.surr_temp = Label(
-            text=str(read_temp()) if use_thermometer else "Not detected")
+        self.system_temperature = TemperatureWidget(
+            temperature=25.0, text="System", pos_hint={'x': .25, 'center_y': .5}, size_hint=(None, None))
+        self.target_temperature = TemperatureWidget(
+            temperature=27.0, text="Target", pos_hint={'x': .65, 'center_y': .5}, size_hint=(None, None))
+        if use_thermometer:
+            self.surrounding_temperature = TemperatureWidget(temperature=read_temp(
+            ), text="Surroundings", pos_hint={'x': .45, 'center_y': .75}, size_hint=(None, None))
+        else:
+            self.surrounding_temperature = TemperatureWidget(text="Surroundings",
+                pos_hint={'x': .45, 'center_y': .75}, size_hint=(None, None))
 
     def build(self):
         # build the main layout
-        main = GridLayout(cols=2)
-        tbox = BoxLayout(orientation="horizontal")
-
-        tbox.add_widget(self.target_temperature)
-        main.add_widget(tbox)
-
+        main = FloatLayout()
+        Window.clearcolor = (1, 1, 1, 1)
+        main.add_widget(self.target_temperature)
         if not use_thermometer:
             # if thermometer not detected, use the manual controls.
-            box = BoxLayout(orientation="horizontal")
-            box.add_widget(self.system_temperature)
-            main.add_widget(box)
+            main.add_widget(self.system_temperature)
+        main.add_widget(self.surrounding_temperature)
 
-        main.add_widget(
-            Label(text="Algae Temperature \n (if thermometer is detected)", halign="center"))
-        main.add_widget(self.surr_temp)
-
-        main.add_widget(Label(text="Fan Power"))
+        main.add_widget(Label(text="Fan Power",  pos_hint={'x': .22, 'center_y': .25}, size_hint=(None, None), color=(0,0,0,1)))
         main.add_widget(self.fp)
-
-        main.add_widget(Label(text="Water Pump Power"))
+        main.add_widget(Label(text="Water Pump Power",  pos_hint={'x': .6, 'center_y': .25},size_hint=(None, None),  color=(0,0,0,1)))
         main.add_widget(self.wpp)
 
         Clock.schedule_interval(partial(self.updateGUI), 1)
@@ -116,11 +114,12 @@ class AlbaeApp(App):
         temp = float(read_temp()) if use_thermometer else float(self.system_temperature.temperature)
 
         fan_power, wp_power = self.tsm.step(temp)
-        self.fp.text = str(fan_power * 100) + "%"
-        self.wpp.text = str(wp_power * 100) + "%"
+        self.fp.text = str(round(fan_power,2) * 100) + "%"
+        self.wpp.text = str(round(wp_power,2) * 100) + "%"
 
+        self.system_temperature.update_color(self.tsm.state)
         if use_thermometer:
-            self.surr_temp.text = str(temp)
+            self.surrounding_temperature.update_temperature(temp)
 
 if __name__ == '__main__':
     AlbaeApp(name="Albae").run()

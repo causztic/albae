@@ -80,7 +80,7 @@ class TemperatureSM(sm.SM):
         elif state == "cold":
             power = 0
 
-        print temperature, nextState
+        print temperature, nextState, power
         return nextState, (power, power)
 
 tsm = TemperatureSM()

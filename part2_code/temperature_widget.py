@@ -4,10 +4,13 @@ from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 
 
-
 class TemperatureWidget(FloatLayout):
+    """
+    Widget to display temperature and controls to increase and decrease them.
+    """
 
     def pretty_temperature(self):
+        """ displays the temperature prettily """
         return str(self.temperature) + u"\u00b0C"
 
     def __init__(self, **kwargs):
@@ -24,9 +27,9 @@ class TemperatureWidget(FloatLayout):
                 setattr(self, k, v)
 
         self.widget_text = Label(text=self.text, font_name=(
-            "Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 1.5}, size_hint=(None, None), color=(0,0,0,1))
+            "Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 1.5}, size_hint=(None, None), color=(0, 0, 0, 1))
         self.temperature_text = Label(
-            text=self.pretty_temperature(), font_name=("Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 0}, size_hint=(None, None), color=(0,0,0,1))
+            text=self.pretty_temperature(), font_name=("Lato-Bold.ttf"), pos_hint={'x': .25, 'center_y': 0}, size_hint=(None, None), color=(0, 0, 0, 1))
         self.increment_temp_btn = Button(on_press=self.plus_temp, text="+", font_name=(
             "Lato-Bold.ttf"), pos_hint={'x': -0.5, 'center_y': -1.5}, size_hint=(None, None))
         self.decrement_temp_btn = Button(on_press=self.minus_temp, text="-", font_name=(
@@ -50,11 +53,13 @@ class TemperatureWidget(FloatLayout):
         self.temperature_text.text = self.pretty_temperature()
 
     def update_temperature(self, temp):
+        """update temperature value and the text"""
         self.temperature = float(temp)
         self.temperature_text.text = str(temp)
 
     def update_color(self, state):
+        """update the color to reflect the state of the temperature"""
         if state == "hot":
-            self.temperature_text.color = 1,0,0,1
+            self.temperature_text.color = 1, 0, 0, 1
         else:
-            self.temperature_text.color = 0,0,1,1
+            self.temperature_text.color = 0, 0, 1, 1

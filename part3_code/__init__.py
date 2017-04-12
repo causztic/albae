@@ -15,6 +15,11 @@ from constants import REDIS_SERVER
 
 
 class WaterPump(object):
+    """
+    Class to emulate the water pump.
+    Pumps out water regardless of temperature because it is only dependent on the Controller's
+    power output.
+    """
 
     def __init__(self, env):
         self.env = env
@@ -33,7 +38,13 @@ class WaterPump(object):
 
 
 class Fan(object):
-
+    """
+    Class to emulate a fan.
+    Starts blowing air regardless of temperature because it is only dependent on the controller's
+    power output.
+    # This class is here as a stub and not used because we don't have a fan to model it after.
+    """
+    
     def __init__(self, env):
         self.env = env
         self.power = 0.0

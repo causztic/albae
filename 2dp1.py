@@ -9,13 +9,13 @@ GPIO.setmode(GPIO.BCM)
 # GPIOS
 
 WATER_PUMP1 = 17
-# WATER_PUMP2 = 12
+PWM = 18
 
 # FAN_1 = 18
 # FAN_2 = 27
 
 GPIO.setup(WATER_PUMP1, GPIO.OUT)
-# GPIO.setup(WATER_PUMP2, GPIO.OUT)
+GPIO.setup(PWM, GPIO.OUT)
 # GPIO.setup(FAN_1, GPIO.OUT)
 # GPIO.setup(FAN_2, GPIO.OUT)
 
@@ -90,5 +90,9 @@ while (True):
     temperature = read_temp() # read temperature from function
     wp_power, f_power = tsm.step(temperature) # step with temperature, get the power
     # f.ChangeDutyCycle(f_power * 100.0) # convert the power to 0 to 100 for duty cycle
+    if wp_power > 0:
+        GPIO.output(PWM, GPIO.HIGH)
+    else:
+        GPIO.output(PWM, GPIO.LOW)
     wp.ChangeDutyCycle(wp_power * 100.0) # convert the power to a range of 0 to 100 for duty cycle
     time.sleep(1) # check every 1 second

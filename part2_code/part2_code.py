@@ -10,6 +10,9 @@ power = k0 * abs(optimal - current) + k1 * [ abs(optimal - current) - abs(optima
 k0 is 1 while k1 is 0.5.
 This is to optimize the power consumption based on the current temperature and the project temperature due to rate of change.
 
+If thermometer is detected, use the thermometer. Otherwise, use manual controls.
+(We were unable to install the kivy-garden graph library on Pi, use the part2_code_with_gpio instead.)
+(This runs perfectly on other systems)
 '''
 
 

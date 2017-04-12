@@ -1,17 +1,9 @@
 '''
-PART 2.1
+This is the exact same as part2_code.py but without Graph because we can't get it to install on Pi.
+It also has PWM and GPIO to output power to the water pump.
 
-We decided to use the Proportional-Derivative controller so that we are able to detect sudden temperature changes
-in the algae, and increase the fan and water pump's power accordingly.
-
-The function is in the form:
-power = k0 * abs(optimal - current) + k1 * [ abs(optimal - current) - abs(optimal - previous) ], and scaled from 0 to 1.
-
-k0 is 1 while k1 is 0.5.
-This is to optimize the power consumption based on the current temperature and the project temperature due to rate of change.
-
+If thermometer is detected, use the thermometer. Otherwise, use manual controls.
 '''
-
 
 import os
 import glob
@@ -36,6 +28,9 @@ from temperature_widget import TemperatureWidget
 use_thermometer = True
 GPIO.setmode(GPIO.BCM)
 WATER_PUMP = 12
+PWM = 18
+
+GPIO.setup(PWM, GPIO.OUT)
 GPIO.setup(WATER_PUMP, GPIO.OUT)
 # attempt to detect Thermometer for use with GUI.
 # if Thermometer not detected, use manual temperature input.
@@ -125,6 +120,12 @@ class AlbaeApp(App):
 
         fan_power, wp_power = self.tsm.step(temp)
 
+        if wp_power > 0:
+            GPIO.output(PWM, GPIO.HIGH)
+        else:
+            GPIO.output(PWM, GPIO.LOW)
+        
+        # do the same for fan if implemented
         self.wp_cw.ChangeDutyCycle(wp_power * 100.0)
 
         self.fp.text = str(round(fan_power, 2) * 100) + "%"

@@ -8,7 +8,7 @@ GPIO.setmode(GPIO.BCM)
 
 # GPIOS
 
-WATER_PUMP1 = 17
+WATER_PUMP1 = 12
 PWM = 18
 
 # FAN_1 = 18

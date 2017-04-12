@@ -97,6 +97,8 @@ class AlbaeApp(App):
 
         main = FloatLayout()
         Window.clearcolor = (1, 1, 1, 1)
+        Window.size = (800, 600)
+        
         main.add_widget(self.target_temperature)
         main.add_widget(self.system_temperature)
 

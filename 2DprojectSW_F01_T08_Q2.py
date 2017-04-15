@@ -1,10 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-    Created on Thu Apr  6 19:45:30 2017
-    
-    @author: ZHI_WANG
-    """
+Created on Thu Apr  6 19:45:30 2017
+
+@author: ZHI_WANG
+"""
 
 import numpy as np
 
@@ -65,7 +65,7 @@ def getLoss(order):
     K=trainModel(p,order)
     loss = np.linalg.norm(MatrixA.T*K-V)**2
     return loss
-
+    
 def testModel(p,order):
     if (p==n):
         return None
@@ -77,24 +77,24 @@ def testModel(p,order):
             vector_en.append(enl[p+i-i2])
         testMatrix.append(vector_en)
         testV.append(vnl[p+i])
-
-
+        
+    
     testMatrix=np.matrix(testMatrix)
     testV=np.matrix(testV)
-
-    #    print testMatrix.T
+    
+#    print testMatrix.T
 #    print trainModel(p,order)
 #    print testV.T
-#prediction error = 1/n*(sum of the terms (v-vpred)^2)
-error = 1/float(n-p)*np.linalg.norm(testMatrix*trainModel(p,order)-testV.T)**2
+    #prediction error = 1/n*(sum of the terms (v-vpred)^2)
+    error = 1/float(n-p)*np.linalg.norm(testMatrix*trainModel(p,order)-testV.T)**2
     return error
-
+    
 #define the size of the dataset
 n=10
 #choose the first p point as training data
-p=8
+p=9
 #choose the order
-order=2
+order=9
 #choose different model for Q2/Q3
 isQ2=True
 #set the effect of the coefficients to the objective function
